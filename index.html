@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>F.P.</title>
+    <style>
+        /* 页面整体样式：不可滑动，居中显示 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #fcfcfc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Songti SC', 'Noto Serif SC', STSong, '楷体', serif; 
+        }
+
+        /* 诗歌文字容器：固定一个大概的高度和宽度，防止打字时页面乱跳 */
+        #poem-box {
+            width: 80vw;
+            max-width: 500px;
+            height: 250px; 
+            display: flex;
+            align-items: center; /* 让诗句在容器内垂直居中 */
+        }
+
+        /* 诗歌文字的样式 */
+        #poem-text {
+            width: 100%;
+            font-size: 1.4rem;
+            line-height: 2.2;
+            color: #333;
+            white-space: pre-wrap; /* 保留回车换行 */
+            text-align: left; /* 打字机效果左对齐视觉上最舒服 */
+        }
+
+        /* 打字机的闪烁光标效果 */
+        .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1.2em;
+            background-color: #333;
+            vertical-align: text-bottom;
+            margin-left: 4px;
+            animation: blink 1s step-end infinite; /* 闪烁动画 */
+        }
+
+        /* 定义光标闪烁的节奏 */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 诗句显示的容器 -->
+    <div id="poem-box">
+        <div id="poem-text"></div>
+    </div>
+
+    <script>
+        // 【在这里写下你的诗句】
+        const poems = [
+            `我把灯关了
+            让月亮进来`,
+
+            `今天的风
+            是从昨天吹来的`,
+
+            `不要问我为什么沉默
+            我的肚子里
+            正有一场暴雨`,
+
+            `写下一行字
+            就像在雪地上
+            踩出一个脚印`
+        ];
+
+        const poemElement = document.getElementById('poem-text');
+
+        let poemIndex = 0;     
+        let charIndex = 0;     
+        let isDeleting = false;
+
+        function typeEffect() {
+            const currentPoemChars = [...poems[poemIndex]];
+            
+            // 【第一步：先把当前的字老老实实显示到屏幕上】
+            poemElement.innerHTML = currentPoemChars.slice(0, charIndex).join('') + '<span class="cursor"></span>';
+            
+            let typeSpeed = 200;
+
+            // 【第二步：看着屏幕上已经显示的字，来决定下一步要等多久】
+            if (!isDeleting && charIndex === currentPoemChars.length) {
+                // 如果屏幕上的字已经等于整首诗的长度，说明【打完了】
+                // 停顿 3 秒，供人阅读，然后准备删除
+                typeSpeed = 3000;
+                isDeleting = true;
+            } 
+            else if (isDeleting && charIndex === 0) {
+                // 如果屏幕上的字已经删到了 0，说明【删完了】
+                // 停顿 1 秒，然后换成下一首，准备开始打字
+                isDeleting = false;
+                poemIndex = (poemIndex + 1) % poems.length;
+                typeSpeed = 1000; 
+            } 
+            else {
+                // 【第三步：如果既没打完也没删完，就正常继续】
+                if (isDeleting) {
+                    charIndex--;    // 删字
+                    typeSpeed = 80; // 删字速度
+                } else {
+                    charIndex++;    // 打字
+                    typeSpeed = 150 + Math.random() * 200; // 模拟真人打字速度
+                }
+            }
+
+            // 设定倒计时，执行下一次动作
+            setTimeout(typeEffect, typeSpeed);
+        }
+
+        // 网页加载完成后，开始执行
+        setTimeout(typeEffect, 500);
+    </script>
+</body>
+</html>
